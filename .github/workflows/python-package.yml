@@ -31,5 +31,6 @@ jobs:
       run: |
         # stop the build if there are Python syntax errors or undefined names
         # run the pipeline
+        echo "$CRED_ID"
         python app.py -env qa -cid $CRED_ID -token $TOKEN -job_template_name dev_job
         
