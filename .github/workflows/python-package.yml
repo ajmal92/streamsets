@@ -35,4 +35,5 @@ jobs:
         python app.py -env qa -cid $CRED_ID -token $TOKEN -job_template_name dev_job
       env:
         CRED_ID: ${{ secrets.CRED_ID }}
-        
+        TOKEN: ${{ secrets.TOKEN }}
+
