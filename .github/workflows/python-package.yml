@@ -17,6 +17,8 @@ jobs:
         python-version: ["3.8"]
 
     steps:
+    - env:
+        CRED_ID: ${{ secrets.CRED_ID }}
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
