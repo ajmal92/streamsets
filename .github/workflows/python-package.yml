@@ -17,8 +17,6 @@ jobs:
         python-version: ["3.8"]
 
     steps:
-    - env:
-        CRED_ID: ${{ secrets.CRED_ID }}
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
@@ -35,4 +33,6 @@ jobs:
         # run the pipeline
         echo "$CRED_ID"
         python app.py -env qa -cid $CRED_ID -token $TOKEN -job_template_name dev_job
+      env:
+        CRED_ID: ${{ secrets.CRED_ID }}
         
