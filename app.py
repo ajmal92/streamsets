@@ -21,7 +21,8 @@ def options():
 def get_commit_id_from_config():
     result = ()
     with open("config.yaml") as stream:
-        result = yaml.safe_load(stream)['commit_id'], yaml.safe_load(stream)['commit_version']
+        dt = yaml.safe_load(stream)
+        result = dt['commit_id'], dt['commit_version']
     return  result
 
 def stop_and_delete_job(job):
