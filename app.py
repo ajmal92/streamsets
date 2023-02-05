@@ -3,6 +3,7 @@ import time
 import json
 import argparse
 import datetime
+import yaml
 from streamsets.sdk import ControlHub
 from streamsets.sdk.exceptions import JobRunnerError
 
@@ -17,15 +18,38 @@ def options():
     args = parser.parse_args()
     return args
 
+def get_commit_id_from_config():
+    result = ()
+    with open("config.yaml") as stream:
+        result = yaml.safe_load(stream)['commit_id'], yaml.safe_load(stream)['commit_version']
+    return  result
 
-def deploy_pipeline(environment, job_template_name, credential_id, token):
-    sch = ControlHub(credential_id=credential_id, token=token)
+def stop_and_delete_job(job):
+    retry_counts = 0
+    while retry_counts < 4:
+        try:
+            retry_counts += 1
+            sch.stop_job(job)
+        except TimeoutError:
+            time.sleep(60)
+        except JobRunnerError as e:
+
+            break
+        else:
+            response = sch.get_current_job_status(job=job).response
+            if response.status_code == 200:
+
+                if response.json()['status'].upper() not in ('ACTIVE', 'DEACTIVATING'):
+                    break
+                else:
+                    sch.delete_job(job)
+def deploy_pipeline(environment, job_template_name):
+
     # assumption data/qa.json, data/prod.json
     data_collector = sch.data_collectors.get(reported_labels=[environment])
     file_path = f"pipelines/{max(os.listdir('pipelines'))}"
     data = json.load(open(file_path))
-    commit_id = data['pipelineConfig']['metadata']['dpm.pipeline.commit.id']
-    pipeline_commit_label = data['pipelineConfig']['metadata']['dpm.pipeline.version']
+
 
     run_time_parameter_json = f'data/{environment}.json'
     with open(run_time_parameter_json) as f:
@@ -39,27 +63,15 @@ def deploy_pipeline(environment, job_template_name, credential_id, token):
     # filter the jobs that are created from i/p job_template that has {env} tags
     all_jobs = sch.jobs.get_all(job_template=False,
                                     template_job_id=job_template.job_id, raw_job_tags=[environment])
-    retry_counts = 0
     for job in all_jobs:
-        while retry_counts < 4:
-            try:
-                retry_counts += 1
-                sch.stop_job(job)
-            except TimeoutError:
-                time.sleep(60)
-            except JobRunnerError as e:
-
-                break
-            else:
-                response = sch.get_current_job_status(job=job).response
-                if response.status_code == 200:
-
-                    if response.json()['status'].upper() not in ('ACTIVE', 'DEACTIVATING'):
-                        break
-                    else:
-                        sch.delete_job(job)
+        stop_and_delete_job(job)
 
     # create the new job
+    if os.path.isfile('config.yaml'):
+        commit_id, pipeline_commit_label = get_commit_id_from_config()
+    else:
+        commit_id = data['pipelineConfig']['metadata']['dpm.pipeline.commit.id']
+        pipeline_commit_label = data['pipelineConfig']['metadata']['dpm.pipeline.version']
     job_template.data_collector_labels = [environment]
     job_template.commit_id = commit_id
     job_template.commit_label = f"v{pipeline_commit_label}"
@@ -72,7 +84,5 @@ def deploy_pipeline(environment, job_template_name, credential_id, token):
 
 args = options()
 
-# credential_id = '6380daa2-4417-4c01-a0a0-29bcefe7912c'
-# token ="""eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzIjoiMzIwN2MyYWU1MmY0OTNiYjExNzczNWZmYjM2NzkxYWVmNzQ0MjBlY2E5MGFiZTVlYTM0YjllZTgxYTBkY2QzYjM4ZTIzYThiMWZmNmI3NWY4OThiMWE4NGQyNGFiYmIwODkwNzljZjFhOTA2N2I2MTAxOTFlYmVjNDBmN2E3MGMiLCJ2IjoxLCJpc3MiOiJuYTAxIiwianRpIjoiNjM4MGRhYTItNDQxNy00YzAxLWEwYTAtMjliY2VmZTc5MTJjIiwibyI6IjNmZGMzNjYxLThiZDMtMTFlZC1hNGQ0LTA3NjU2M2I1OTljOSJ9."""
-deploy_pipeline(environment=args.env, job_template_name=args.job_template_name, credential_id=args.cid,
-                token=args.token)
+sch = ControlHub(credential_id=args.cid, token=args.token)
+deploy_pipeline(environment=args.env, job_template_name=args.job_template_name)
