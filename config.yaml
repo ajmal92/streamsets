@@ -1,2 +1,17 @@
-commit_id: 8f6abda9-40f8-4a9c-bca9-7a132ca75e89:3fdc3661-8bd3-11ed-a4d4-076563b599c9
-commit_version: 2
+pipeline_id: c632cc00-4d0e-4b66-a4fa-cd68f49f0046:3fdc3661-8bd3-11ed-a4d4-076563b599c9
+data_collector_labels:
+  qa: 
+    - qa
+  dev:
+    - dev
+  prod:
+    - prod
+job_template_args:
+  enable_follower: true
+  static_parameters: []
+  statistics_refresh_interval_in_millisecs: 60000
+  global_max_retries: -1
+  enable_time_series_analysis: false
+  delete_after_completion: false
+  require_job_error_acknowledgement: true
+  pipeline_force_stop_timeout: 120000

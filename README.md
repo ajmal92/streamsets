@@ -2,7 +2,7 @@
 streamsets - ci-cd pipeline
 
 Pre-requisites:
-  Job template should be created for the pipeline file. 
+  Pipeline id should be provided in config.yaml
  
  Command:
   `python app.py -env qa -cid $CRED_ID -token $TOKEN -job_template_name dev_job`
@@ -17,10 +17,12 @@ Any pushes to `main` branch triggers the pipeline.
 
 pipelines folder should contain only the latest pipeline [if config.yaml is not used]
 
-First identifty the jobs that are running from the job_template that has the environment tag.
+The pipeline checks if there is any job template present for the pipeline. If not, it creates a job_template.
 
-The purpose of pipeline file is just to read pipeline commit id and pipeline commmit label.
+if job_template exists, update the job_template to use the latest version of pipeline.
 
-Once we have this information, we update the job_template to the input commit id and input commit label.
+The pipeline then checks for any running jobs that are created from job_template.
+
+If jobs are present, update the job to reflect the new version of job_template
 
 Then run the jobs based on the updated job_template. 
