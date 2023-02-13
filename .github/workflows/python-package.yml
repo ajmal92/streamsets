@@ -8,6 +8,10 @@ on:
     branches: [ "main" ]
     
   workflow_dispatch:
+
+  repository_dispatch:
+    types: [create-big-table]
+
   
 jobs:
   build:
