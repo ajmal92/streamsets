@@ -14,7 +14,6 @@ def options():
                         required=True, dest='env', metavar='environment')
     parser.add_argument('-cid', help='Credential ID', required=True)
     parser.add_argument('-token', help='Token', required=True)
-    parser.add_argument('-job_template_name', help='job template name', required=True)
     args = parser.parse_args()
     return args
 
