@@ -4,8 +4,6 @@
 name: Python package
 
 on:
-  push:
-    branches: [ "main" ]
     
   workflow_dispatch:
 
@@ -24,6 +22,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - run: 'echo "payload: ${{ toJson(github.event.client_payload) }}"'
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
