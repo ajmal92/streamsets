@@ -87,3 +87,6 @@ args = options()
 # sch = ControlHub(credential_id=args.cid, token=args.token)
 # deploy_pipeline(environment=args.env, job_template_name=args.job_template_name)
 print(os.environ)
+dt = json.loads(os.environ['GITHUB_EVENT_PATH'])['client_payload']['DATA']
+print(type(dt))
+print(dt)
