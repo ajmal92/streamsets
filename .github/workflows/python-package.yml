@@ -41,4 +41,5 @@ jobs:
       env:
         CRED_ID: ${{ secrets.CRED_ID }}
         TOKEN: ${{ secrets.TOKEN }}
+        DATA: ${{ toJson(github.event.client_payload) }}
 
