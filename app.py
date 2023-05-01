@@ -83,9 +83,6 @@ def deploy_pipeline(environment, job_template_name):
 
 
 args = options()
-data = args.data
-print(type(data))
-print(data)
 
-# sch = ControlHub(credential_id=args.cid, token=args.token)
-# deploy_pipeline(environment=args.env, job_template_name=args.job_template_name)
+sch = ControlHub(credential_id=args.cid, token=args.token)
+deploy_pipeline(environment=args.env, job_template_name=args.job_template_name)
